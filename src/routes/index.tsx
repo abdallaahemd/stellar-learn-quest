@@ -167,6 +167,43 @@ function Landing() {
         </div>
       </section>
 
+      {/* CONTINUE LEARNING */}
+      {hasProgress && nextMod && next && (
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mt-12"
+        >
+          <GlassCard glow="orange" className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-primary text-2xl shadow-glow-blue">
+                {profile.avatar}
+              </div>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-glow">
+                  Welcome back, {profile.name}
+                </div>
+                <div className="mt-1 text-lg font-bold">
+                  Continue: {nextMod.title}
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  Level {lvl.level} · {profile.xp} XP · {next.grade.title}
+                </div>
+              </div>
+            </div>
+            <Link
+              to="/quiz/$gradeId/$moduleId"
+              params={{ gradeId: next.grade.id, moduleId: next.moduleId }}
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-accent px-6 py-3 text-sm font-semibold text-glow-foreground shadow-glow-orange transition-transform hover:scale-105"
+            >
+              <Play className="h-4 w-4" />
+              Resume
+            </Link>
+          </GlassCard>
+        </motion.section>
+      )}
+
       {/* STATS */}
       <section className="mt-20">
         <motion.div
