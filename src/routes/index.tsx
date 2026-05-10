@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Sparkles, Trophy, Rocket, Code2, Brain, Zap, ArrowRight, Star } from "lucide-react";
+import { Sparkles, Trophy, Rocket, Code2, Brain, Zap, ArrowRight, Star, Play } from "lucide-react";
 import { GlassCard } from "@/components/GlassCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { useProfile, getNextModule, levelInfo } from "@/lib/profile-store";
+import { getModule } from "@/data/curriculum";
 
 export const Route = createFileRoute("/")({
   head: () => ({
