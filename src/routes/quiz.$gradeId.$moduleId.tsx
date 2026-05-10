@@ -362,6 +362,7 @@ function ResultScreen({
   // Confetti for great results — client-only via useEffect (SSR-safe)
   useEffect(() => {
     if (!passed) return;
+    sfx.win();
     const burst = () =>
       confetti({
         particleCount: perfect ? 220 : 120,
