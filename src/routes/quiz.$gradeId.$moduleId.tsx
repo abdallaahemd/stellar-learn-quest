@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, X, Trophy, Zap, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, X, Trophy, Zap, RotateCcw, Sparkles, Save } from "lucide-react";
 import confetti from "canvas-confetti";
 import { getModule, getGrade, type Grade, type Module } from "@/data/curriculum";
 import { cn } from "@/lib/utils";
+import { sfx } from "@/lib/sound";
+import { recordQuizCompletion, saveDraft, loadDraft, clearDraft } from "@/lib/profile-store";
 
 export const Route = createFileRoute("/quiz/$gradeId/$moduleId")({
   loader: ({ params }) => {
