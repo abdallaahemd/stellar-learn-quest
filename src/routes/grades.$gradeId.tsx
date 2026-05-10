@@ -1,8 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Trophy, Check } from "lucide-react";
 import { getGrade, type Grade } from "@/data/curriculum";
 import { GlassCard } from "@/components/GlassCard";
+import { useProfile } from "@/lib/profile-store";
 
 export const Route = createFileRoute("/grades/$gradeId")({
   loader: ({ params }) => {
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/grades/$gradeId")({
 
 function ModulesPage() {
   const { grade } = Route.useLoaderData() as { grade: Grade };
+  const { profile } = useProfile();
 
   return (
     <div className="py-12 sm:py-20">
