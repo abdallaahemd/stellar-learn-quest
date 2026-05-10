@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as GradesRouteImport } from './routes/grades'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GradesGradeIdRouteImport } from './routes/grades.$gradeId'
 import { Route as QuizGradeIdModuleIdRouteImport } from './routes/quiz.$gradeId.$moduleId'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GradesRoute = GradesRouteImport.update({
   id: '/grades',
   path: '/grades',
@@ -45,6 +57,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/grades': typeof GradesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/grades/$gradeId': typeof GradesGradeIdRoute
   '/quiz/$gradeId/$moduleId': typeof QuizGradeIdModuleIdRoute
 }
@@ -52,6 +66,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/grades': typeof GradesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/grades/$gradeId': typeof GradesGradeIdRoute
   '/quiz/$gradeId/$moduleId': typeof QuizGradeIdModuleIdRoute
 }
@@ -60,6 +76,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/grades': typeof GradesRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/profile': typeof ProfileRoute
   '/grades/$gradeId': typeof GradesGradeIdRoute
   '/quiz/$gradeId/$moduleId': typeof QuizGradeIdModuleIdRoute
 }
@@ -69,6 +87,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/grades'
+    | '/leaderboard'
+    | '/profile'
     | '/grades/$gradeId'
     | '/quiz/$gradeId/$moduleId'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +96,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/grades'
+    | '/leaderboard'
+    | '/profile'
     | '/grades/$gradeId'
     | '/quiz/$gradeId/$moduleId'
   id:
@@ -83,6 +105,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/grades'
+    | '/leaderboard'
+    | '/profile'
     | '/grades/$gradeId'
     | '/quiz/$gradeId/$moduleId'
   fileRoutesById: FileRoutesById
@@ -91,11 +115,27 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   GradesRoute: typeof GradesRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
+  ProfileRoute: typeof ProfileRoute
   QuizGradeIdModuleIdRoute: typeof QuizGradeIdModuleIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/grades': {
       id: '/grades'
       path: '/grades'
@@ -149,6 +189,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   GradesRoute: GradesRouteWithChildren,
+  LeaderboardRoute: LeaderboardRoute,
+  ProfileRoute: ProfileRoute,
   QuizGradeIdModuleIdRoute: QuizGradeIdModuleIdRoute,
 }
 export const routeTree = rootRouteImport

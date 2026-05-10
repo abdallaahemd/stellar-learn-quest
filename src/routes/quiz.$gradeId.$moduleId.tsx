@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, X, Trophy, Zap, RotateCcw, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, X, Trophy, Zap, RotateCcw, Sparkles, Save } from "lucide-react";
 import confetti from "canvas-confetti";
 import { getModule, getGrade, type Grade, type Module } from "@/data/curriculum";
 import { cn } from "@/lib/utils";
+import { sfx } from "@/lib/sound";
+import { recordQuizCompletion, saveDraft, loadDraft, clearDraft } from "@/lib/profile-store";
 
 export const Route = createFileRoute("/quiz/$gradeId/$moduleId")({
   loader: ({ params }) => {
@@ -39,13 +41,34 @@ function QuizPage() {
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [locked, setLocked] = useState(false);
-  const [answers, setAnswers] = useState<boolean[]>([]);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_QUESTION);
   const [finished, setFinished] = useState(false);
   const [shake, setShake] = useState(false);
+  const [resumed, setResumed] = useState(false);
+  const startedAtRef = useRef<number>(Date.now());
 
   const total = mod.questions.length;
   const q = mod.questions[index];
+
+  // Restore draft on mount (client-only)
+  useEffect(() => {
+    const draft = loadDraft(grade.id, mod.id);
+    if (draft && draft.index < total) {
+      setIndex(draft.index);
+      setAnswers(draft.answers);
+      setResumed(true);
+      const t = setTimeout(() => setResumed(false), 2400);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (finished) return;
+    saveDraft(grade.id, mod.id, index, answers);
+  }, [index, answers, finished, grade.id, mod.id]);
 
   // Timer
   useEffect(() => {
@@ -54,25 +77,43 @@ function QuizPage() {
       handleSubmit(null);
       return;
     }
+    if (timeLeft <= 5) sfx.tick();
     const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [timeLeft, locked, finished]);
+
+  // Keyboard 1-4 to choose
+  useEffect(() => {
+    if (locked || finished) return;
+    function onKey(e: KeyboardEvent) {
+      const n = parseInt(e.key, 10);
+      if (n >= 1 && n <= q.options.length) handleSubmit(n - 1);
+      if (e.key === "Enter" && locked) handleNext();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, locked, finished]);
 
   function handleSubmit(choice: number | null) {
     if (locked) return;
     setLocked(true);
     setSelected(choice);
     const correct = choice === q.answer;
-    setAnswers((prev) => [...prev, correct]);
-    if (!correct) {
+    setAnswers((prev) => [...prev, correct ? choice : choice ?? -1]);
+    if (correct) {
+      sfx.correct();
+    } else {
+      sfx.wrong();
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
   }
 
   function handleNext() {
+    sfx.click();
     if (index + 1 >= total) {
-      setFinished(true);
+      finishQuiz();
       return;
     }
     setIndex((i) => i + 1);
@@ -81,19 +122,44 @@ function QuizPage() {
     setTimeLeft(TIME_PER_QUESTION);
   }
 
+  function finishQuiz() {
+    const correctCount = answers.reduce<number>(
+      (acc, ans, i) => (ans === mod.questions[i].answer ? acc + 1 : acc),
+      0,
+    );
+    const pct = Math.round((correctCount / total) * 100);
+    const earnedXp = Math.round(mod.xp * (correctCount / total));
+    const durationSec = Math.round((Date.now() - startedAtRef.current) / 1000);
+    recordQuizCompletion({
+      gradeId: grade.id,
+      moduleId: mod.id,
+      scorePct: pct,
+      earnedXp,
+      durationSec,
+    });
+    clearDraft(grade.id, mod.id);
+    setFinished(true);
+  }
+
   function handleRetry() {
+    sfx.click();
     setIndex(0);
     setSelected(null);
     setLocked(false);
     setAnswers([]);
     setTimeLeft(TIME_PER_QUESTION);
     setFinished(false);
+    startedAtRef.current = Date.now();
   }
 
   if (finished) {
+    const correct = answers.reduce<number>(
+      (acc, ans, i) => (ans === mod.questions[i].answer ? acc + 1 : acc),
+      0,
+    );
     return (
       <ResultScreen
-        score={answers.filter(Boolean).length}
+        score={correct}
         total={total}
         xp={mod.xp}
         moduleTitle={mod.title}
@@ -108,6 +174,19 @@ function QuizPage() {
 
   return (
     <div className="py-8 sm:py-12">
+      <AnimatePresence>
+        {resumed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-4 inline-flex items-center gap-2 rounded-full bg-neon/15 px-4 py-1.5 text-xs text-neon"
+          >
+            <Save className="h-3.5 w-3.5" />
+            Resumed where you left off
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <Link
@@ -283,6 +362,7 @@ function ResultScreen({
   // Confetti for great results — client-only via useEffect (SSR-safe)
   useEffect(() => {
     if (!passed) return;
+    sfx.win();
     const burst = () =>
       confetti({
         particleCount: perfect ? 220 : 120,
