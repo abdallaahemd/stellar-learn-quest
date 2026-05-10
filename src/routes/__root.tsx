@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { Splash } from "@/components/Splash";
 
 function NotFoundComponent() {
   return (
@@ -114,6 +115,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <Splash />
       <AnimatedBackground />
       <Header />
       <PageTransitions>
