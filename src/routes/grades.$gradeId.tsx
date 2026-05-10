@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Trophy } from "lucide-react";
-import { getGrade } from "@/data/curriculum";
+import { getGrade, type Grade } from "@/data/curriculum";
 import { GlassCard } from "@/components/GlassCard";
 
 export const Route = createFileRoute("/grades/$gradeId")({
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/grades/$gradeId")({
 });
 
 function ModulesPage() {
-  const { grade } = Route.useLoaderData();
+  const { grade } = Route.useLoaderData() as { grade: Grade };
 
   return (
     <div className="py-12 sm:py-20">

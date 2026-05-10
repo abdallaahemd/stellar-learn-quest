@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, X, Trophy, Zap, RotateCcw, Sparkles } from "lucide-react";
 import confetti from "canvas-confetti";
-import { getModule, getGrade } from "@/data/curriculum";
+import { getModule, getGrade, type Grade, type Module } from "@/data/curriculum";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/quiz/$gradeId/$moduleId")({
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/quiz/$gradeId/$moduleId")({
 const TIME_PER_QUESTION = 30; // seconds
 
 function QuizPage() {
-  const { grade, module: mod } = Route.useLoaderData();
+  const { grade, module: mod } = Route.useLoaderData() as { grade: Grade; module: Module };
   const navigate = useNavigate();
 
   const [index, setIndex] = useState(0);
