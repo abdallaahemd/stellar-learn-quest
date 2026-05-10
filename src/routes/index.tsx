@@ -83,6 +83,12 @@ const floatingIcons = [
 ];
 
 function Landing() {
+  const { profile } = useProfile();
+  const next = getNextModule(profile);
+  const lvl = levelInfo(profile.xp);
+  const hasProgress = profile.xp > 0 || Object.keys(profile.modules).length > 0;
+  const nextMod = next ? getModule(next.grade.id, next.moduleId) : null;
+
   return (
     <div className="pt-10 sm:pt-16">
       {/* HERO */}
