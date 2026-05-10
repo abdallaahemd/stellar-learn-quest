@@ -153,9 +153,13 @@ function QuizPage() {
   }
 
   if (finished) {
+    const correct = answers.reduce<number>(
+      (acc, ans, i) => (ans === mod.questions[i].answer ? acc + 1 : acc),
+      0,
+    );
     return (
       <ResultScreen
-        score={answers.filter(Boolean).length}
+        score={correct}
         total={total}
         xp={mod.xp}
         moduleTitle={mod.title}
