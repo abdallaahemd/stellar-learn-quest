@@ -123,8 +123,8 @@ function QuizPage() {
   }
 
   function finishQuiz() {
-    const correctCount = answers.reduce(
-      (a, ans, i) => (ans === mod.questions[i].answer ? a + 1 : a),
+    const correctCount = answers.reduce<number>(
+      (acc, ans, i) => (ans === mod.questions[i].answer ? acc + 1 : acc),
       0,
     );
     const pct = Math.round((correctCount / total) * 100);
