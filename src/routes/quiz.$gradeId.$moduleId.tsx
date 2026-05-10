@@ -174,6 +174,19 @@ function QuizPage() {
 
   return (
     <div className="py-8 sm:py-12">
+      <AnimatePresence>
+        {resumed && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-4 inline-flex items-center gap-2 rounded-full bg-neon/15 px-4 py-1.5 text-xs text-neon"
+          >
+            <Save className="h-3.5 w-3.5" />
+            Resumed where you left off
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <Link
